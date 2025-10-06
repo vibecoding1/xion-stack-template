@@ -6,6 +6,7 @@ import { config, isFeatureEnabled, isProviderEnabled } from '@/lib/config'
 import { useAuth } from '@/lib/auth'
 import { LoginForm } from '@/components/auth/LoginForm'
 import { SignupForm } from '@/components/auth/SignupForm'
+import { LayoutVariants } from '@/components/layout/PageLayout'
 import { useState } from 'react'
 
 export default function Home() {
@@ -22,7 +23,7 @@ export default function Home() {
   }
 
   return (
-    <main className="container mx-auto px-4 py-8">
+    <LayoutVariants.Landing>
       <div className="text-center space-y-8">
         <div className="space-y-4">
           <h1 className="text-4xl font-bold tracking-tight">
@@ -206,6 +207,6 @@ export default function Home() {
           </div>
         </div>
       </div>
-    </main>
+    </LayoutVariants.Landing>
   )
 }

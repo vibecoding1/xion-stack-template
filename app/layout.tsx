@@ -1,12 +1,13 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
+import { config } from '@/lib/config'
 
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Xion Stack App',
-  description: 'Built with the bulletproof Xion Stack',
+  title: config.app.name,
+  description: config.app.description,
 }
 
 export default function RootLayout({
