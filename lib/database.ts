@@ -1,13 +1,12 @@
 /**
- * Configurable Database System
+ * Supabase-First Database System
  * 
- * Supports multiple database providers:
- * - Supabase (PostgreSQL) - recommended
- * - Local Storage (fallback)
- * - Custom database adapter
+ * Primary database: Supabase PostgreSQL
+ * Fallback: Local Storage (development only)
  */
 
 import { config, isFeatureEnabled, isProviderEnabled } from './config'
+import { supabase } from './supabase'
 
 // Types
 export interface DatabaseProvider {
@@ -21,18 +20,16 @@ export interface DatabaseProvider {
 
 // Supabase Database Provider
 class SupabaseDatabaseProvider implements DatabaseProvider {
-  private supabase: any
+  private supabaseClient: any
 
   constructor() {
-    if (isProviderEnabled('supabase')) {
-      this.supabase = require('./supabase').supabase
-    }
+    this.supabaseClient = supabase
   }
 
   async query(sql: string, params?: any[]): Promise<any[]> {
-    if (!this.supabase) throw new Error('Supabase not configured')
+    if (!this.supabaseClient) throw new Error('Supabase not configured')
     
-    const { data, error } = await this.supabase.rpc('execute_sql', {
+    const { data, error } = await this.supabaseClient.rpc('execute_sql', {
       query: sql,
       params: params || []
     })
@@ -42,9 +39,9 @@ class SupabaseDatabaseProvider implements DatabaseProvider {
   }
 
   async insert(table: string, data: Record<string, any>): Promise<any> {
-    if (!this.supabase) throw new Error('Supabase not configured')
+    if (!this.supabaseClient) throw new Error('Supabase not configured')
     
-    const { data: result, error } = await this.supabase
+    const { data: result, error } = await this.supabaseClient
       .from(table)
       .insert(data)
       .select()
@@ -55,9 +52,9 @@ class SupabaseDatabaseProvider implements DatabaseProvider {
   }
 
   async update(table: string, id: string, data: Record<string, any>): Promise<any> {
-    if (!this.supabase) throw new Error('Supabase not configured')
+    if (!this.supabaseClient) throw new Error('Supabase not configured')
     
-    const { data: result, error } = await this.supabase
+    const { data: result, error } = await this.supabaseClient
       .from(table)
       .update(data)
       .eq('id', id)
@@ -69,9 +66,9 @@ class SupabaseDatabaseProvider implements DatabaseProvider {
   }
 
   async delete(table: string, id: string): Promise<void> {
-    if (!this.supabase) throw new Error('Supabase not configured')
+    if (!this.supabaseClient) throw new Error('Supabase not configured')
     
-    const { error } = await this.supabase
+    const { error } = await this.supabaseClient
       .from(table)
       .delete()
       .eq('id', id)
@@ -80,9 +77,9 @@ class SupabaseDatabaseProvider implements DatabaseProvider {
   }
 
   async findById(table: string, id: string): Promise<any | null> {
-    if (!this.supabase) throw new Error('Supabase not configured')
+    if (!this.supabaseClient) throw new Error('Supabase not configured')
     
-    const { data, error } = await this.supabase
+    const { data, error } = await this.supabaseClient
       .from(table)
       .select('*')
       .eq('id', id)
@@ -93,9 +90,9 @@ class SupabaseDatabaseProvider implements DatabaseProvider {
   }
 
   async findMany(table: string, filters?: Record<string, any>): Promise<any[]> {
-    if (!this.supabase) throw new Error('Supabase not configured')
+    if (!this.supabaseClient) throw new Error('Supabase not configured')
     
-    let query = this.supabase.from(table).select('*')
+    let query = this.supabaseClient.from(table).select('*')
     
     if (filters) {
       Object.entries(filters).forEach(([key, value]) => {
@@ -225,16 +222,19 @@ export const getDatabaseProvider = (): DatabaseProvider => {
     return new NoDatabaseProvider()
   }
 
+  // Supabase is the primary database
   if (isProviderEnabled('supabase')) {
     return new SupabaseDatabaseProvider()
   }
 
-  // Fallback to local storage for development
+  // Fallback to local storage for development only
   if (process.env.NODE_ENV === 'development') {
+    console.warn('Supabase not configured, using local storage fallback')
     return new LocalStorageDatabaseProvider()
   }
 
-  return new NoDatabaseProvider()
+  // In production, require Supabase
+  throw new Error('Supabase is required for database functionality')
 }
 
 // Export the database provider instance
