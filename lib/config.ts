@@ -37,11 +37,6 @@ export interface XionConfig {
       secretKey?: string
       webhookSecret?: string
     }
-    auth0: FeatureConfig & {
-      domain?: string
-      clientId?: string
-      clientSecret?: string
-    }
     sendgrid: FeatureConfig & {
       apiKey?: string
     }
@@ -127,13 +122,6 @@ const defaultConfig: XionConfig = {
       publishableKey: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
       secretKey: process.env.STRIPE_SECRET_KEY,
       webhookSecret: process.env.STRIPE_WEBHOOK_SECRET
-    },
-    auth0: {
-      enabled: !!(process.env.AUTH0_DOMAIN && process.env.AUTH0_CLIENT_ID),
-      required: false,
-      domain: process.env.AUTH0_DOMAIN,
-      clientId: process.env.AUTH0_CLIENT_ID,
-      clientSecret: process.env.AUTH0_CLIENT_SECRET
     },
     sendgrid: {
       enabled: !!process.env.SENDGRID_API_KEY,

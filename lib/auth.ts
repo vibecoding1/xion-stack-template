@@ -3,11 +3,11 @@
  * 
  * Supports multiple authentication providers:
  * - Supabase Auth (recommended)
- * - Auth0
  * - Custom JWT
  * - No authentication (disabled)
  */
 
+import React from 'react'
 import { config, isFeatureEnabled, isProviderEnabled } from './config'
 
 // Types
@@ -107,49 +107,6 @@ class SupabaseAuthProvider implements AuthProvider {
   }
 }
 
-// Auth0 Provider
-class Auth0Provider implements AuthProvider {
-  private auth0: any
-
-  constructor() {
-    if (isProviderEnabled('auth0')) {
-      // Dynamic import for Auth0
-      this.auth0 = require('@auth0/nextjs-auth0')
-    }
-  }
-
-  async signIn(email: string, password: string): Promise<User | null> {
-    // Auth0 handles this through their hosted login
-    throw new Error('Auth0 sign-in handled through hosted login page')
-  }
-
-  async signUp(email: string, password: string, name?: string): Promise<User | null> {
-    // Auth0 handles this through their hosted login
-    throw new Error('Auth0 sign-up handled through hosted login page')
-  }
-
-  async signOut(): Promise<void> {
-    if (!this.auth0) return
-    // Auth0 handles sign out
-  }
-
-  async getCurrentUser(): Promise<User | null> {
-    if (!this.auth0) return null
-    // Get user from Auth0 session
-    return null // Implement based on Auth0 setup
-  }
-
-  async resetPassword(email: string): Promise<void> {
-    if (!this.auth0) return
-    // Auth0 handles password reset
-  }
-
-  async updateProfile(updates: Partial<User>): Promise<User | null> {
-    if (!this.auth0) return null
-    // Update user profile in Auth0
-    return null
-  }
-}
 
 // Mock Auth Provider (for development/testing)
 class MockAuthProvider implements AuthProvider {
@@ -232,10 +189,6 @@ export const getAuthProvider = (): AuthProvider => {
 
   if (isProviderEnabled('supabase')) {
     return new SupabaseAuthProvider()
-  }
-
-  if (isProviderEnabled('auth0')) {
-    return new Auth0Provider()
   }
 
   // Fallback to mock provider for development

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { config, isFeatureEnabled } from './lib/config'
+import { config as appConfig, isFeatureEnabled, isProviderEnabled } from './lib/config'
 
 // Define protected routes
 const protectedRoutes = [
@@ -88,7 +88,6 @@ export function middleware(request: NextRequest) {
 function getUserFromRequest(request: NextRequest) {
   // This is a placeholder - implement based on your auth provider
   // For Supabase, you would check the session cookie
-  // For Auth0, you would check the JWT token
   // For custom auth, you would check your session storage
 
   try {
@@ -106,19 +105,6 @@ function getUserFromRequest(request: NextRequest) {
       }
     }
 
-    // Example for Auth0
-    if (isProviderEnabled('auth0')) {
-      const token = request.cookies.get('appSession')
-      if (token) {
-        // Decode and validate the JWT
-        // Return user object if valid
-        return {
-          id: 'user-id',
-          email: 'user@example.com',
-          role: 'user'
-        }
-      }
-    }
 
     return null
   } catch (error) {
